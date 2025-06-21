@@ -75,15 +75,19 @@ QLabel {
 }
 """
 
-# 定义一个函数来获取正确的文件路径
+# 定义一个函数来获取正确的文件路径，打包后将文件保存到用户数据目录
 def get_file_path(filename):
     if getattr(sys, 'frozen', False):
-        # 如果是打包后的可执行文件
-        base_path = sys._MEIPASS
+        # 如果是打包后的可执行文件，使用用户数据目录
+        app_data_dir = os.getenv('APPDATA')
+        app_dir = os.path.join(app_data_dir, 'TaskManager')
+        if not os.path.exists(app_dir):
+            os.makedirs(app_dir)
+        return os.path.join(app_dir, filename)
     else:
         # 如果是开发环境
         base_path = os.path.dirname(os.path.abspath(__file__))
-    return os.path.join(base_path, filename)
+        return os.path.join(base_path, filename)
 
 class taskwindow(QWidget):
     def __init__(self):
@@ -488,3 +492,4 @@ if __name__ == '__main__':
     window = taskwindow()
     sys.exit(app.exec_())
 
+# pyinstaller --windowed --onefile --icon=myico.ico --add-data "mytask.txt;."   WaliTask.py
